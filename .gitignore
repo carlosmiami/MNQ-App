@@ -1,0 +1,55 @@
+# Secrets
+config.env
+.env
+.env.*
+!.env.example
+
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Runtime data
+logs/
+state/
+
+# Local market/history data
+data/
+
+# Backups
+*.before_*
+*.before*
+app (1).py
+app_full.txt
+app_full_fixed_load_forward.py
+app_broken_before_load_forward_fix.py
+app_before_*.py
+app_header_fixed*.py
+MNQ_App_clean.py
+
+# Development patch/update scripts
+adjust_*.py
+apply_*.py
+fix_*.py
+update_*.py
+
+# Local tests
+tests/
+test_*.py
+run_regression_tests.py
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Editors
+.vscode/
+.idea/
+
+# Streamlit local secrets
+.streamlit/secrets.toml
