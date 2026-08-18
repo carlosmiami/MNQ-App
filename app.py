@@ -1645,10 +1645,11 @@ def render_live_app():
             )
         )
 
-    except Exception as exc:
+    except Exception:
 
         st.error(
-            f"Market data error: {exc}"
+            "Market data is temporarily unavailable. "
+            "Please try again shortly."
         )
 
         st.stop()
