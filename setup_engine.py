@@ -329,22 +329,17 @@ def _find_new_c1(
             ]
         )
 
+        previous = data.iloc[
+            latest_index - 1
+        ]
+
         valid = (
             float(
-                latest[
-                    "open"
+                previous[
+                    "close"
                 ]
             )
             <= level
-
-            and
-
-            float(
-                latest[
-                    "high"
-                ]
-            )
-            > level
 
             and
 
@@ -382,22 +377,17 @@ def _find_new_c1(
             ]
         )
 
+        previous = data.iloc[
+            latest_index - 1
+        ]
+
         valid = (
             float(
-                latest[
-                    "open"
+                previous[
+                    "close"
                 ]
             )
             >= level
-
-            and
-
-            float(
-                latest[
-                    "low"
-                ]
-            )
-            < level
 
             and
 
