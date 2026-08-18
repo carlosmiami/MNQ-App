@@ -32,6 +32,264 @@ from contract_history import (
 )
 
 
+# ============================================================================
+# UI TRANSLATIONS
+# ============================================================================
+
+TRANSLATIONS = {
+    "English": {
+        "language": "Language",
+        "in_progress": "IN PROGRESS",
+        "waiting": "WAITING",
+        "wait": "WAIT",
+        "no_setup": "NO SETUP",
+        "none": "NONE",
+        "direction": "Direction",
+        "stage": "Stage",
+        "key_level": "Key Level",
+        "breakout": "Breakout",
+        "acceptance": "Acceptance",
+        "retest": "Retest",
+        "defense": "Defense",
+        "confirmation": "Confirmation",
+        "last": "Last",
+        "setup_lifecycle": "C1 → C5 SETUP LIFECYCLE",
+        "market_details": "Market Details | Levels / Indicators",
+        "how_to_use": "How to Use the System",
+        "how_to_use_body": (
+            "**1. Direction**\n\n"
+            "Shows whether the current setup is LONG, SHORT, or NONE. "
+            "It is not a trade order.\n\n"
+            "**2. Stage**\n\n"
+            "Shows how far the current setup has progressed through the "
+            "C1 → C5 sequence.\n\n"
+            "**3. Key Level**\n\n"
+            "The price level around which the current setup is being evaluated.\n\n"
+            "**4. C1 — Breakout**\n\n"
+            "Price breaks through the relevant level.\n\n"
+            "**5. C2 — Acceptance**\n\n"
+            "Price closes and shows acceptance beyond the breakout level.\n\n"
+            "**6. C3 — Retest**\n\n"
+            "Price returns to test the breakout area.\n\n"
+            "**7. C4 — Defense**\n\n"
+            "The retest area holds and price shows rejection or defense.\n\n"
+            "**8. C5 — Confirmation**\n\n"
+            "The setup receives its final confirmation. A setup should not be "
+            "considered fully confirmed before C5.\n\n"
+            "**WAIT / IN PROGRESS**\n\n"
+            "WAIT means that stage has not started yet. IN PROGRESS means the "
+            "current stage is developing but is not yet completed.\n\n"
+            "**Important**\n\n"
+            "Use the system as an analytical aid only. Review market context, "
+            "risk, system status, data freshness, and your own trading plan "
+            "before making any decision."
+        ),
+        "how_to_use": "How to Use the System",
+        "how_to_use_body": (
+            "**1. Direction**\n\n"
+            "Shows whether the current setup is LONG, SHORT, or NONE. "
+            "It is not a trade order.\n\n"
+            "**2. Stage**\n\n"
+            "Shows how far the current setup has progressed through the "
+            "C1 → C5 sequence.\n\n"
+            "**3. Key Level**\n\n"
+            "The price level around which the current setup is being evaluated.\n\n"
+            "**4. C1 — Breakout**\n\n"
+            "Price breaks through the relevant level.\n\n"
+            "**5. C2 — Acceptance**\n\n"
+            "Price closes and shows acceptance beyond the breakout level.\n\n"
+            "**6. C3 — Retest**\n\n"
+            "Price returns to test the breakout area.\n\n"
+            "**7. C4 — Defense**\n\n"
+            "The retest area holds and price shows rejection or defense.\n\n"
+            "**8. C5 — Confirmation**\n\n"
+            "The setup receives its final confirmation. A setup should not be "
+            "considered fully confirmed before C5.\n\n"
+            "**WAIT / IN PROGRESS**\n\n"
+            "WAIT means that stage has not started yet. IN PROGRESS means the "
+            "current stage is developing but is not yet completed.\n\n"
+            "**Important**\n\n"
+            "Use the system as an analytical aid only. Review market context, "
+            "risk, system status, data freshness, and your own trading plan "
+            "before making any decision."
+        ),
+        "forward_validation": "Forward Validation | H1 / H2 / H3",
+        "frozen_from": "Frozen from",
+        "logged_c5": "Logged C5",
+        "completed": "Completed",
+        "open_display": "Open",
+        "no_fill": "No Fill",
+        "risk_gt_30": "Risk > 30",
+        "overlap": "Overlap",
+        "hypothesis": "Hypothesis",
+        "setups": "Setups",
+        "wins": "W",
+        "losses": "L",
+        "win_pct": "Win %",
+        "total_r": "Total R",
+        "avg_r": "Avg R",
+        "recent_forward_setups": "Recent Forward Setups",
+        "h1_label": "H1 SHORT + OVERNIGHT",
+        "h2_label": "H2 VWAP NOT ALIGNED",
+        "h3_label": "H3 DISTANCE > 2 ATR",
+        "canonical_parity": "Canonical v1 | NQ-Bot / Atlas parity",
+        "canonical_caption": "Research parity reference only | Stop buffer = 1 point | Max risk = 25 points | TP = 1.5R | Pending = 30 minutes | Quantity = 1 MNQ",
+        "waiting_breakout": "Waiting for breakout.",
+        "beta": "BETA • Educational / Testing Use Only",
+        "app_subtitle": "Real-Time MNQ Setup Analysis",
+        "disclaimer_title": "⚠️ Risk & Use Disclaimer",
+        "disclaimer_body": (
+            "This application is provided for educational, research, "
+            "and testing purposes only. It does not provide financial, "
+            "investment, trading, legal, or tax advice, and nothing "
+            "displayed by the application should be interpreted as a "
+            "recommendation or solicitation to buy, sell, or hold any "
+            "financial instrument. Futures trading involves substantial "
+            "risk of loss and may not be appropriate for every person. "
+            "You are solely responsible for your own trading decisions "
+            "and should independently verify all information before "
+            "acting. Historical results, backtests, simulated results, "
+            "indicators, setups, signals, projections, and displayed "
+            "market information do not guarantee future performance. "
+            "Data may be delayed, incomplete, unavailable, or inaccurate. "
+            "The application is provided as-is and without any warranty "
+            "of accuracy, availability, profitability, or fitness for a "
+            "particular purpose. Use of this application is entirely at "
+            "your own risk."
+        ),
+    },
+
+    "Español": {
+        "language": "Idioma",
+        "in_progress": "EN CURSO",
+        "waiting": "ESPERANDO",
+        "wait": "ESPERA",
+        "no_setup": "SIN SETUP",
+        "none": "NINGUNA",
+        "direction": "Dirección",
+        "stage": "Etapa",
+        "key_level": "Nivel clave",
+        "breakout": "Ruptura",
+        "acceptance": "Aceptación",
+        "retest": "Retesteo",
+        "defense": "Defensa",
+        "confirmation": "Confirmación",
+        "last": "Último",
+        "setup_lifecycle": "CICLO DEL SETUP C1 → C5",
+        "market_details": "Detalles del mercado | Niveles / Indicadores",
+        "how_to_use": "Cómo usar el sistema",
+        "how_to_use_body": (
+            "**1. Dirección**\n\n"
+            "Muestra si el setup actual es LARGO, CORTO o NINGUNO. "
+            "No es una orden de trading.\n\n"
+            "**2. Etapa**\n\n"
+            "Muestra cuánto ha avanzado el setup actual dentro de la "
+            "secuencia C1 → C5.\n\n"
+            "**3. Nivel clave**\n\n"
+            "Es el nivel de precio alrededor del cual se está evaluando "
+            "el setup actual.\n\n"
+            "**4. C1 — Ruptura**\n\n"
+            "El precio rompe el nivel relevante.\n\n"
+            "**5. C2 — Aceptación**\n\n"
+            "El precio cierra y muestra aceptación más allá del nivel de ruptura.\n\n"
+            "**6. C3 — Retesteo**\n\n"
+            "El precio regresa a probar el área de la ruptura.\n\n"
+            "**7. C4 — Defensa**\n\n"
+            "El área del retesteo aguanta y el precio muestra rechazo o defensa.\n\n"
+            "**8. C5 — Confirmación**\n\n"
+            "El setup recibe su confirmación final. Un setup no debe considerarse "
+            "completamente confirmado antes de C5.\n\n"
+            "**ESPERA / EN CURSO**\n\n"
+            "ESPERA significa que esa etapa todavía no ha comenzado. EN CURSO "
+            "significa que la etapa actual se está desarrollando, pero todavía "
+            "no ha terminado.\n\n"
+            "**Importante**\n\n"
+            "Usa el sistema solamente como herramienta de análisis. Revisa el "
+            "contexto del mercado, el riesgo, el estado del sistema, la frescura "
+            "de los datos y tu propio plan de trading antes de tomar una decisión."
+        ),
+        "how_to_use": "Cómo usar el sistema",
+        "how_to_use_body": (
+            "**1. Dirección**\n\n"
+            "Muestra si el setup actual es LARGO, CORTO o NINGUNO. "
+            "No es una orden de trading.\n\n"
+            "**2. Etapa**\n\n"
+            "Muestra cuánto ha avanzado el setup actual dentro de la "
+            "secuencia C1 → C5.\n\n"
+            "**3. Nivel clave**\n\n"
+            "Es el nivel de precio alrededor del cual se está evaluando "
+            "el setup actual.\n\n"
+            "**4. C1 — Ruptura**\n\n"
+            "El precio rompe el nivel relevante.\n\n"
+            "**5. C2 — Aceptación**\n\n"
+            "El precio cierra y muestra aceptación más allá del nivel de ruptura.\n\n"
+            "**6. C3 — Retesteo**\n\n"
+            "El precio regresa a probar el área de la ruptura.\n\n"
+            "**7. C4 — Defensa**\n\n"
+            "El área del retesteo aguanta y el precio muestra rechazo o defensa.\n\n"
+            "**8. C5 — Confirmación**\n\n"
+            "El setup recibe su confirmación final. Un setup no debe considerarse "
+            "completamente confirmado antes de C5.\n\n"
+            "**ESPERA / EN CURSO**\n\n"
+            "ESPERA significa que esa etapa todavía no ha comenzado. EN CURSO "
+            "significa que la etapa actual se está desarrollando, pero todavía "
+            "no ha terminado.\n\n"
+            "**Importante**\n\n"
+            "Usa el sistema solamente como herramienta de análisis. Revisa el "
+            "contexto del mercado, el riesgo, el estado del sistema, la frescura "
+            "de los datos y tu propio plan de trading antes de tomar una decisión."
+        ),
+        "forward_validation": "Validación Forward | H1 / H2 / H3",
+        "frozen_from": "Congelado desde",
+        "logged_c5": "C5 registrados",
+        "completed": "Completados",
+        "open_display": "Abiertos",
+        "no_fill": "Sin ejecución",
+        "risk_gt_30": "Riesgo > 30",
+        "overlap": "Solapamiento",
+        "hypothesis": "Hipótesis",
+        "setups": "Setups",
+        "wins": "G",
+        "losses": "P",
+        "win_pct": "% ganadas",
+        "total_r": "R total",
+        "avg_r": "R promedio",
+        "recent_forward_setups": "Setups Forward recientes",
+        "h1_label": "H1 CORTO + NOCTURNA",
+        "h2_label": "H2 VWAP NO ALINEADO",
+        "h3_label": "H3 DISTANCIA > 2 ATR",
+        "canonical_parity": "Canonical v1 | Paridad NQ-Bot / Atlas",
+        "canonical_caption": "Referencia de paridad para investigación solamente | Buffer del stop = 1 punto | Riesgo máximo = 25 puntos | TP = 1.5R | Pendiente = 30 minutos | Cantidad = 1 MNQ",
+        "waiting_breakout": "Esperando ruptura.",
+        "beta": "BETA • Solo para uso educativo y de pruebas",
+        "app_subtitle": "Análisis de setups MNQ en tiempo real",
+        "disclaimer_title": "⚠️ Aviso de riesgo y uso",
+        "disclaimer_body": (
+            "Esta aplicación se proporciona únicamente con fines "
+            "educativos, de investigación y de prueba. No proporciona "
+            "asesoramiento financiero, de inversión, de trading, legal "
+            "ni fiscal, y nada de lo mostrado por la aplicación debe "
+            "interpretarse como una recomendación o solicitud para "
+            "comprar, vender o mantener ningún instrumento financiero. "
+            "El trading de futuros implica un riesgo sustancial de "
+            "pérdida y puede no ser apropiado para todas las personas. "
+            "Cada usuario es el único responsable de sus propias "
+            "decisiones de trading y debe verificar independientemente "
+            "toda la información antes de actuar. Los resultados "
+            "históricos, backtests, resultados simulados, indicadores, "
+            "setups, señales, proyecciones y datos de mercado mostrados "
+            "no garantizan resultados futuros. Los datos pueden estar "
+            "retrasados, incompletos, no disponibles o ser inexactos. "
+            "La aplicación se proporciona tal cual, sin garantía de "
+            "exactitud, disponibilidad, rentabilidad o idoneidad para "
+            "un propósito particular. El uso de esta aplicación es "
+            "completamente bajo la responsabilidad del usuario."
+        ),
+    },
+}
+
+
+
 # ============================================================
 # FILES
 # ============================================================
@@ -50,9 +308,20 @@ FREEZE_FILE = Path(
 # ============================================================
 
 st.set_page_config(
-    page_title="MNQ Trading App",
+    page_title="MNQ Edge",
     layout="wide",
 )
+
+# ============================================================================
+# LANGUAGE SELECTOR
+# ============================================================================
+
+if "language" not in st.session_state:
+    st.session_state.language = "English"
+
+language = st.session_state.language
+T = TRANSLATIONS[language]
+
 
 
 # ============================================================
@@ -187,8 +456,8 @@ st.markdown(
 
 
     .mnq-top-safe-space {
-        height: 62px;
-        min-height: 62px;
+        height: 10px;
+        min-height: 10px;
         width: 100%;
         display: block;
         pointer-events: none;
@@ -899,14 +1168,16 @@ def setup_box(
 
     elif active:
         icon = "[>]"
-        status = "EN CURSO"
+        status = T["in_progress"]
         border_color = "rgba(34, 201, 139, .80)"
         background = "rgba(17, 24, 32, .88)"
         status_color = "#22c98b"
 
     else:
         icon = "[ ]"
-        status = "WAIT"
+        status = TRANSLATIONS[
+            st.session_state.get("language", "English")
+        ]["wait"]
         border_color = "rgba(105, 117, 130, .75)"
         background = "rgba(17, 24, 32, .88)"
         status_color = "rgba(155, 166, 178, .95)"
@@ -944,7 +1215,9 @@ def setup_box(
 
     else:
         segment_values = [0.0, 0.0, 0.0, 0.0, 0.0]
-        minute_text = "WAIT"
+        minute_text = TRANSLATIONS[
+            st.session_state.get("language", "English")
+        ]["wait"]
 
     segment_html = ""
 
@@ -1294,6 +1567,14 @@ def fmt(
 
 @st.fragment(run_every="20s")
 def render_live_app():
+    # Resolve the active UI language before any translated text is rendered.
+    language = st.session_state.get(
+        "language_selector_header",
+        st.session_state.get("language", "English"),
+    )
+
+    st.session_state.language = language
+    T = TRANSLATIONS[language]
 
 
     # ============================================================
@@ -1467,6 +1748,20 @@ def render_live_app():
 
     setup_stage = setup["stage"] if setup.get("stage") else "NO SETUP"
 
+    # Display-only translations.
+    # Internal strategy values remain unchanged.
+    setup_stage_display = (
+        T["no_setup"]
+        if setup_stage == "NO SETUP"
+        else setup_stage
+    )
+
+    setup_side_display = (
+        T["none"]
+        if setup_side in (None, "", "NONE")
+        else setup_side
+    )
+
     if setup_stage == "INVALIDATED":
         stage_class = "mnq-red"
     elif setup_stage == "C5 CONFIRMED":
@@ -1505,24 +1800,57 @@ def render_live_app():
 
     with title_col:
         st.markdown(
-            "<div class='mnq-app-title'>MNQ Trading App"
+            "<div class='mnq-app-title'>MNQ Edge"
+            f"<span style='font-size:0.92rem; font-weight:500; color:#b7bec9 !important;'>"
+            f"{T['app_subtitle']}</span>"
+            f"<span style='color:#e7cf54 !important;'>{T['beta']}</span>"
             "<span>5m · "
             f"{active_contract.get('name') or '-'}"
             "</span></div>",
             unsafe_allow_html=True,
         )
 
+    # Process the language selector BEFORE rendering translated
+    # header metrics. It remains visually located in column s5.
+    with s5:
+        language = st.selectbox(
+            "🌐",
+            ["English", "Español"],
+            index=0 if st.session_state.language == "English" else 1,
+            key="language_selector_header",
+            label_visibility="collapsed",
+        )
+
+        st.session_state.language = language
+        T = TRANSLATIONS[language]
+
     with s1:
-        render_colored_metric("Direction", setup_side, direction_class)
+        render_colored_metric(
+            T["direction"],
+            setup_side_display,
+            direction_class,
+        )
 
     with s2:
-        render_colored_metric("Stage", setup_stage, stage_class)
+        render_colored_metric(
+            T["stage"],
+            setup_stage_display,
+            stage_class,
+        )
 
     with s3:
-        render_colored_metric("Key Level", level_value, level_class)
+        render_colored_metric(
+            T["key_level"],
+            level_value,
+            level_class,
+        )
 
     with s4:
-        render_colored_metric("Last", f"{latest_close:.2f}", last_class)
+        render_colored_metric(
+            T["last"],
+            f"{latest_close:.2f}",
+            last_class,
+        )
 
     with s5:
         components.html(
@@ -1900,13 +2228,13 @@ def render_live_app():
 
     with rail_col:
         st.markdown(
-            "<div class='mnq-rail-title'>C1 → C5 SETUP LIFECYCLE</div>",
+            f"<div class='mnq-rail-title'>{T['setup_lifecycle']}</div>",
             unsafe_allow_html=True,
         )
 
         setup_box(
             "C1",
-            "Breakout",
+            T["breakout"],
             stage_reached(stage, "C1 BREAKOUT"),
             setup["c1_time"],
             active=stage_active(stage, "C1 BREAKOUT", setup["side"]),
@@ -1915,7 +2243,7 @@ def render_live_app():
 
         setup_box(
             "C2",
-            "Acceptance",
+            T["acceptance"],
             stage_reached(stage, "C2 CONFIRMED"),
             setup["c2_time"],
             active=stage_active(stage, "C2 CONFIRMED", setup["side"]),
@@ -1924,7 +2252,7 @@ def render_live_app():
 
         setup_box(
             "C3",
-            "Retest",
+            T["retest"],
             stage_reached(stage, "C3 RETEST"),
             setup["c3_time"],
             active=stage_active(stage, "C3 RETEST", setup["side"]),
@@ -1933,7 +2261,7 @@ def render_live_app():
 
         setup_box(
             "C4",
-            "Defense",
+            T["defense"],
             stage_reached(stage, "C4 DEFENSE"),
             setup["c4_time"],
             active=stage_active(stage, "C4 DEFENSE", setup["side"]),
@@ -1942,7 +2270,7 @@ def render_live_app():
 
         setup_box(
             "C5",
-            "Confirmation",
+            T["confirmation"],
             stage_reached(stage, "C5 CONFIRMED"),
             setup["c5_time"],
             active=stage_active(stage, "C5 CONFIRMED", setup["side"]),
@@ -1955,7 +2283,7 @@ def render_live_app():
     # ============================================================
 
     with st.expander(
-        "Market Details | Levels / Indicators",
+        T["market_details"],
         expanded=False,
     ):
         level_cols = st.columns(6)
@@ -1988,7 +2316,7 @@ def render_live_app():
 
         indicator_cols = st.columns(6)
         indicator_values = [
-            ("Last", latest["close"]),
+            (T["last"], latest["close"]),
             ("EMA 9", latest["ema9"]),
             ("EMA 21", latest["ema21"]),
             ("EMA 200", latest["ema200"]),
@@ -2020,12 +2348,28 @@ def render_live_app():
 
 
     with st.expander(
-        "Forward Validation | H1 / H2 / H3",
+        T["how_to_use"],
+        expanded=False,
+    ):
+        st.markdown(
+            T["how_to_use_body"]
+        )
+
+    with st.expander(
+        T["how_to_use"],
+        expanded=False,
+    ):
+        st.markdown(
+            T["how_to_use_body"]
+        )
+
+    with st.expander(
+        T["forward_validation"],
         expanded=False,
     ):
 
         st.caption(
-            f"Frozen from: {freeze_time}"
+            f"{T['frozen_from']}: {freeze_time}"
         )
 
         if forward_df.empty:
@@ -2101,32 +2445,32 @@ def render_live_app():
         )
 
         f1.metric(
-            "Logged C5",
+            T["logged_c5"],
             logged,
         )
 
         f2.metric(
-            "Completed",
+            T["completed"],
             completed_count,
         )
 
         f3.metric(
-            "Open",
+            T["open_display"],
             open_count,
         )
 
         f4.metric(
-            "No Fill",
+            T["no_fill"],
             no_fill_count,
         )
 
         f5.metric(
-            "Risk > 30",
+            T["risk_gt_30"],
             risk_reject_count,
         )
 
         f6.metric(
-            "Overlap",
+            T["overlap"],
             overlap_count,
         )
 
@@ -2150,22 +2494,22 @@ def render_live_app():
         hypothesis_table = pd.DataFrame(
             [
                 {
-                    "Hypothesis":
-                        "H1 SHORT + OVERNIGHT",
+                    T["hypothesis"]:
+                        T["h1_label"],
 
-                    "Setups":
+                    T["setups"]:
                         h1["setups"],
 
-                    "Completed":
+                    T["completed"]:
                         h1["completed"],
 
-                    "W":
+                    T["wins"]:
                         h1["wins"],
 
-                    "L":
+                    T["losses"]:
                         h1["losses"],
 
-                    "Win %":
+                    T["win_pct"]:
                         (
                             "-"
                             if h1["win_rate"]
@@ -2174,13 +2518,13 @@ def render_live_app():
                             f"{h1['win_rate']:.2f}%"
                         ),
 
-                    "Total R":
+                    T["total_r"]:
                         fmt(
                             h1["total_r"],
                             3,
                         ),
 
-                    "Avg R":
+                    T["avg_r"]:
                         fmt(
                             h1["avg_r"],
                             3,
@@ -2194,22 +2538,22 @@ def render_live_app():
                 },
 
                 {
-                    "Hypothesis":
-                        "H2 VWAP NOT ALIGNED",
+                    T["hypothesis"]:
+                        T["h2_label"],
 
-                    "Setups":
+                    T["setups"]:
                         h2["setups"],
 
-                    "Completed":
+                    T["completed"]:
                         h2["completed"],
 
-                    "W":
+                    T["wins"]:
                         h2["wins"],
 
-                    "L":
+                    T["losses"]:
                         h2["losses"],
 
-                    "Win %":
+                    T["win_pct"]:
                         (
                             "-"
                             if h2["win_rate"]
@@ -2218,13 +2562,13 @@ def render_live_app():
                             f"{h2['win_rate']:.2f}%"
                         ),
 
-                    "Total R":
+                    T["total_r"]:
                         fmt(
                             h2["total_r"],
                             3,
                         ),
 
-                    "Avg R":
+                    T["avg_r"]:
                         fmt(
                             h2["avg_r"],
                             3,
@@ -2238,22 +2582,22 @@ def render_live_app():
                 },
 
                 {
-                    "Hypothesis":
-                        "H3 DISTANCE > 2 ATR",
+                    T["hypothesis"]:
+                        T["h3_label"],
 
-                    "Setups":
+                    T["setups"]:
                         h3["setups"],
 
-                    "Completed":
+                    T["completed"]:
                         h3["completed"],
 
-                    "W":
+                    T["wins"]:
                         h3["wins"],
 
-                    "L":
+                    T["losses"]:
                         h3["losses"],
 
-                    "Win %":
+                    T["win_pct"]:
                         (
                             "-"
                             if h3["win_rate"]
@@ -2262,13 +2606,13 @@ def render_live_app():
                             f"{h3['win_rate']:.2f}%"
                         ),
 
-                    "Total R":
+                    T["total_r"]:
                         fmt(
                             h3["total_r"],
                             3,
                         ),
 
-                    "Avg R":
+                    T["avg_r"]:
                         fmt(
                             h3["avg_r"],
                             3,
@@ -2366,7 +2710,7 @@ def render_live_app():
         else:
 
             st.markdown(
-                "**Recent Forward Setups**"
+                f"**{T['recent_forward_setups']}**"
             )
 
             display_columns = [
@@ -2437,16 +2781,23 @@ def render_live_app():
     # ============================================================
 
     with st.expander(
-        "Canonical v1 | NQ-Bot / Atlas parity",
+        T["canonical_parity"],
         expanded=False,
     ):
         st.caption(
-            "Research parity reference only | "
-            "Stop buffer = 1 point | "
-            "Max risk = 25 points | "
-            "TP = 1.5R | "
-            "Pending = 30 minutes | "
-            "Quantity = 1 MNQ"
+            T["canonical_caption"]
+        )
+
+    # ============================================================
+    # BETA / RISK DISCLAIMER
+    # ============================================================
+
+    with st.expander(
+        T["disclaimer_title"],
+        expanded=False,
+    ):
+        st.markdown(
+            T["disclaimer_body"]
         )
 
     # ============================================================

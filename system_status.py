@@ -6,6 +6,37 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 import streamlit as st
 
+
+def _ui(en, es):
+    """Display-only translation. Internal system states are unchanged."""
+    language = st.session_state.get("language", "English")
+    return es if language == "Español" else en
+
+
+def _display_status(value):
+    """Translate status values for display only."""
+    if st.session_state.get("language", "English") != "Español":
+        return value
+
+    mapping = {
+        "UNKNOWN": "DESCONOCIDO",
+        "OPEN": "ABIERTO",
+        "CLOSED": "CERRADO",
+        "FRESH": "ACTUALIZADO",
+        "STALE": "DESACTUALIZADO",
+        "PASS": "OK",
+        "ERROR": "ERROR",
+        "NORMAL": "NORMAL",
+        "SYNCED": "SINCRONIZADO",
+        "CLEAN": "LIMPIO",
+        "LAGGING": "RETRASADO",
+        "OUT OF SYNC": "FUERA DE SINCRONÍA",
+        "SCHEDULE UNKNOWN": "HORARIO DESCONOCIDO",
+        "HOLIDAY UNKNOWN": "FERIADO DESCONOCIDO",
+    }
+
+    return mapping.get(str(value), value)
+
 from cme_calendar import (
     get_cme_holiday_window,
 )
@@ -1060,7 +1091,7 @@ def render_system_status(
     )
 
     with st.expander(
-        "System Status",
+        _ui("System Status", "Estado del sistema"),
         expanded=False,
     ):
 
@@ -1075,26 +1106,22 @@ def render_system_status(
         )
 
         c1.metric(
-            "Forward Runner",
-            runner_health,
+            _ui("Forward Runner", "Ejecutor Forward"),
+            _display_status(runner_health),
         )
 
         c2.metric(
-            "Collector",
-            data[
-                "collector"
-            ],
+            _ui("Collector", "Recolector"),
+            _display_status(data["collector"]),
         )
 
         c3.metric(
-            "Tracker",
-            data[
-                "tracker"
-            ],
+            _ui("Tracker", "Seguimiento"),
+            _display_status(data["tracker"]),
         )
 
         c4.metric(
-            "Runner Age",
+            _ui("Runner Age", "Antigüedad del runner"),
             format_age(
                 runner_age
             ),
@@ -1102,14 +1129,12 @@ def render_system_status(
 
         c5.metric(
             "CME",
-            market_state[
-                "label"
-            ],
+            _display_status(market_state["label"]),
         )
 
         c6.metric(
-            "Market Data",
-            market_data_status,
+            _ui("Market Data", "Datos de mercado"),
+            _display_status(market_data_status),
         )
 
         # ====================================================
@@ -1117,7 +1142,10 @@ def render_system_status(
         # ====================================================
 
         st.markdown(
-            "**Active MNQ Contract**"
+            _ui(
+                "**Active MNQ Contract**",
+                "**Contrato MNQ activo**",
+            )
         )
 
         k1, k2, k3 = (
@@ -1131,12 +1159,12 @@ def render_system_status(
         )
 
         k1.metric(
-            "Contract",
+            _ui("Contract", "Contrato"),
             contract_name,
         )
 
         k2.metric(
-            "Contract ID",
+            _ui("Contract ID", "ID del contrato"),
             contract_id,
         )
 
@@ -1153,7 +1181,7 @@ def render_system_status(
         # ====================================================
 
         st.markdown(
-            "**MNQ Rollover**"
+            _ui("**MNQ Rollover**", "**Rollover de MNQ**")
         )
 
         r1, r2, r3, r4 = (
@@ -1168,14 +1196,12 @@ def render_system_status(
         )
 
         r1.metric(
-            "Rollover Status",
-            roll_status[
-                "state"
-            ],
+            _ui("Rollover Status", "Estado del rollover"),
+            _display_status(roll_status["state"]),
         )
 
         r2.metric(
-            "Next Roll",
+            _ui("Next Roll", "Próximo rollover"),
             (
                 roll_status[
                     "roll_date"
@@ -1189,7 +1215,7 @@ def render_system_status(
         )
 
         r3.metric(
-            "Days to Roll",
+            _ui("Days to Roll", "Días para rollover"),
             (
                 roll_status[
                     "days_to_roll"
@@ -1203,7 +1229,7 @@ def render_system_status(
         )
 
         r4.metric(
-            "Expiration",
+            _ui("Expiration", "Vencimiento"),
             (
                 roll_status[
                     "expiration_date"
@@ -1261,7 +1287,10 @@ def render_system_status(
         # ====================================================
 
         st.markdown(
-            "**Local Contract History**"
+            _ui(
+                "**Local Contract History**",
+                "**Historial local del contrato**",
+            )
         )
 
         h1, h2, h3, h4, h5, h6 = (
@@ -1278,14 +1307,14 @@ def render_system_status(
         )
 
         h1.metric(
-            "Local Bars",
+            _ui("Local Bars", "Velas locales"),
             local_history[
                 "bars"
             ],
         )
 
         h2.metric(
-            "Local First",
+            _ui("Local First", "Primera vela local"),
             format_bar_time(
                 local_history[
                     "first_bar"
@@ -1294,7 +1323,7 @@ def render_system_status(
         )
 
         h3.metric(
-            "Local Last",
+            _ui("Local Last", "Última vela local"),
             format_bar_time(
                 local_history[
                     "last_bar"
@@ -1303,7 +1332,7 @@ def render_system_status(
         )
 
         h4.metric(
-            "Local Age",
+            _ui("Local Age", "Antigüedad local"),
             format_age(
                 local_history[
                     "age_minutes"
@@ -1312,17 +1341,13 @@ def render_system_status(
         )
 
         h5.metric(
-            "Local Sync",
-            local_sync[
-                "state"
-            ],
+            _ui("Local Sync", "Sincronización local"),
+            _display_status(local_sync["state"]),
         )
 
         h6.metric(
-            "History Integrity",
-            local_history[
-                "integrity_state"
-            ],
+            _ui("History Integrity", "Integridad del historial"),
+            _display_status(local_history["integrity_state"]),
         )
 
         if local_history[

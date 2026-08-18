@@ -4,6 +4,12 @@ import pandas as pd
 import streamlit as st
 
 
+def _ui(en, es):
+    """Display-only translation. Internal strategy values are unchanged."""
+    language = st.session_state.get("language", "English")
+    return es if language == "Español" else en
+
+
 HISTORY_FILE = Path(
     "state/setup_history.csv"
 )
@@ -276,14 +282,17 @@ def render_recent_setups(
     df = load_setup_history()
 
     with st.expander(
-        "Recent Setups",
+        _ui("Recent Setups", "Setups recientes"),
         expanded=False,
     ):
 
         if df.empty:
 
             st.info(
-                "No completed setups have been archived yet."
+                _ui(
+                    "No completed setups have been archived yet.",
+                    "Todavía no se han archivado setups completados.",
+                )
             )
 
             st.caption(
@@ -302,35 +311,35 @@ def render_recent_setups(
         )
 
         c1.metric(
-            "Completed",
+            _ui("Completed", "Completados"),
             summary[
                 "total"
             ],
         )
 
         c2.metric(
-            "C5 Confirmed",
+            _ui("C5 Confirmed", "C5 confirmados"),
             summary[
                 "confirmed"
             ],
         )
 
         c3.metric(
-            "Invalidated",
+            _ui("Invalidated", "Invalidados"),
             summary[
                 "invalidated"
             ],
         )
 
         c4.metric(
-            "LONG",
+            _ui("LONG", "LARGO"),
             summary[
                 "long"
             ],
         )
 
         c5.metric(
-            "SHORT",
+            _ui("SHORT", "CORTO"),
             summary[
                 "short"
             ],
@@ -348,17 +357,30 @@ def render_recent_setups(
 
         if contract_summary:
 
-            summary_text = " | ".join(
-                [
-                    (
-                        f"{item['contract']}: "
-                        f"{item['count']} setup"
-                        f"{'' if item['count'] == 1 else 's'}"
-                    )
-                    for item
-                    in contract_summary
-                ]
-            )
+            if st.session_state.get("language", "English") == "Español":
+                summary_text = " | ".join(
+                    [
+                        (
+                            f"{item['contract']}: "
+                            f"{item['count']} setup"
+                            f"{'' if item['count'] == 1 else 's'}"
+                        )
+                        for item
+                        in contract_summary
+                    ]
+                )
+            else:
+                summary_text = " | ".join(
+                    [
+                        (
+                            f"{item['contract']}: "
+                            f"{item['count']} setup"
+                            f"{'' if item['count'] == 1 else 's'}"
+                        )
+                        for item
+                        in contract_summary
+                    ]
+                )
 
             st.caption(
                 summary_text
@@ -426,20 +448,26 @@ def render_recent_setups(
         ].copy()
 
         rename = {
+            "Contract":
+                _ui("Contract", "Contrato"),
+
+            "Last Stage":
+                _ui("Last Stage", "Última etapa"),
+
             "terminal_time":
-                "Finished",
+                _ui("Finished", "Finalizado"),
 
             "side":
-                "Side",
+                _ui("Side", "Dirección"),
 
             "key_level":
-                "Level",
+                _ui("Level", "Nivel"),
 
             "final_stage":
-                "Result",
+                _ui("Result", "Resultado"),
 
             "terminal_reason":
-                "Reason",
+                _ui("Reason", "Motivo"),
 
             "c1_time":
                 "C1",
@@ -456,6 +484,125 @@ def render_recent_setups(
             "c5_time":
                 "C5",
         }
+
+        # ====================================================
+        # DISPLAY-ONLY VALUE TRANSLATION
+        # Internal archived values remain unchanged.
+        # ====================================================
+
+        if st.session_state.get("language", "English") == "Español":
+
+            if "side" in display.columns:
+                display["side"] = display["side"].replace(
+                    {
+                        "LONG": "LARGO",
+                        "SHORT": "CORTO",
+                    }
+                )
+
+            if "final_stage" in display.columns:
+                display["final_stage"] = display["final_stage"].replace(
+                    {
+                        "INVALIDATED": "INVALIDADO",
+                        "C5 CONFIRMED": "C5 CONFIRMADO",
+                    }
+                )
+
+            if "terminal_reason" in display.columns:
+                display["terminal_reason"] = (
+                    display["terminal_reason"]
+                    .fillna("")
+                    .astype(str)
+                    .replace(
+                        {
+                            "C5 CONFIRMED":
+                                "C5 CONFIRMADO",
+                        }
+                    )
+                )
+
+                reason_replacements = {
+                    "LONG setup invalidated: no C3 retest within 12 bars.":
+                        "Setup LARGO invalidado: no hubo retesteo C3 dentro de 12 velas.",
+
+                    "SHORT setup invalidated: no C3 retest within 12 bars.":
+                        "Setup CORTO invalidado: no hubo retesteo C3 dentro de 12 velas.",
+
+                    "LONG setup invalidated: C5 failed.":
+                        "Setup LARGO invalidado: C5 falló.",
+
+                    "SHORT setup invalidated: C5 failed.":
+                        "Setup CORTO invalidado: C5 falló.",
+
+                    "LONG setup invalidated: C2 failed.":
+                        "Setup LARGO invalidado: C2 falló.",
+
+                    "SHORT setup invalidated: C2 failed.":
+                        "Setup CORTO invalidado: C2 falló.",
+                }
+
+                display["terminal_reason"] = (
+                    display["terminal_reason"]
+                    .replace(reason_replacements)
+                )
+
+                # Generic prefixes for reasons containing dynamic values.
+                display["terminal_reason"] = (
+                    display["terminal_reason"]
+                    .str.replace(
+                        "LONG setup invalidated:",
+                        "Setup LARGO invalidado:",
+                        regex=False,
+                    )
+                    .str.replace(
+                        "SHORT setup invalidated:",
+                        "Setup CORTO invalidado:",
+                        regex=False,
+                    )
+                    .str.replace(
+                        "Setup invalidated:",
+                        "Setup invalidado:",
+                        regex=False,
+                    )
+                    .str.replace(
+                        "trading session changed from",
+                        "la sesión de trading cambió de",
+                        regex=False,
+                    )
+                    .str.replace(
+                        "contract changed from",
+                        "el contrato cambió de",
+                        regex=False,
+                    )
+                    .str.replace(
+                        "Cross-session continuation",
+                        "Continuación entre sesiones",
+                        regex=False,
+                    )
+                    .str.replace(
+                        "Cross-contract continuation",
+                        "Continuación entre contratos",
+                        regex=False,
+                    )
+                    .str.replace(
+                        "no C3 retest within 12 bars",
+                        "no hubo retesteo C3 dentro de 12 velas",
+                        regex=False,
+                    )
+                    .str.replace(
+                        "C5 failed",
+                        "C5 falló",
+                        regex=False,
+                    )
+                    .str.replace(
+                        "C2 failed",
+                        "C2 falló",
+                        regex=False,
+                    )
+                )
+
+            # Replace missing display values only.
+            display = display.fillna("-")
 
         display = display.rename(
             columns=rename
