@@ -53,3 +53,20 @@ Desktop.ini
 
 # Streamlit local secrets
 .streamlit/secrets.toml
+# ============================================================
+# Private/local research and development
+# ============================================================
+canonical_*.py
+canonical_*.csv
+analyze_*.py
+diagnose_*.py
+download_*.py
+forward_*.py
+run_forward.bat
+search_mnq_contracts.py
+
+# One-time UI/development patch scripts
+add_*.py
+move_*.py
+patch_*.py
+rename_*.py
