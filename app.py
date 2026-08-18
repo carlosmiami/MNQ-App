@@ -2357,14 +2357,6 @@ def render_live_app():
         )
 
     with st.expander(
-        T["how_to_use"],
-        expanded=False,
-    ):
-        st.markdown(
-            T["how_to_use_body"]
-        )
-
-    with st.expander(
         T["forward_validation"],
         expanded=False,
     ):
@@ -2767,27 +2759,7 @@ def render_live_app():
             )
 
 
-        st.caption(
-            "Forward only | "
-            "PB50 | WAIT6 | "
-            "Stop = level +/- 1 | "
-            "TP = 1.5R | "
-            "Max risk = 30 points | "
-            "Max hold = 24 bars"
-        )
 
-
-    # ============================================================
-    # CANONICAL V1
-    # ============================================================
-
-    with st.expander(
-        T["canonical_parity"],
-        expanded=False,
-    ):
-        st.caption(
-            T["canonical_caption"]
-        )
 
     # ============================================================
     # BETA / RISK DISCLAIMER
