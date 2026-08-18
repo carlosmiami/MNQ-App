@@ -96,7 +96,7 @@ def load_runner_status():
             )
         )
 
-    except Exception as exc:
+    except Exception:
 
         return {
             "status": "ERROR",
@@ -104,7 +104,7 @@ def load_runner_status():
             "tracker": "UNKNOWN",
             "updated_at": None,
             "message":
-                f"Could not read status file: {exc}",
+                "Forward runner status is temporarily unavailable.",
         }
 
     updated_at = data.get(
@@ -690,14 +690,13 @@ def load_local_history_status(
             contract_name=contract_name,
         )
 
-    except Exception as exc:
+    except Exception:
 
         return {
             **empty,
             "status": "ERROR",
-            "error": str(
-                exc
-            ),
+            "error":
+                "Local history is temporarily unavailable.",
         }
 
     if df.empty:
@@ -1349,15 +1348,6 @@ def render_system_status(
             _ui("History Integrity", "Integridad del historial"),
             _display_status(local_history["integrity_state"]),
         )
-
-        if local_history[
-            "file"
-        ]:
-
-            st.caption(
-                "Local file: "
-                f"{local_history['file']}"
-            )
 
         if (
             local_history[
