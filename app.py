@@ -14,7 +14,7 @@ from market_data import (
     classify_mnq_history,
 )
 from levels import detect_key_levels
-from setup_engine import evaluate_setup
+from analysis_provider import evaluate_setup_public
 from recent_setups import render_recent_setups
 from chart_utils import apply_market_rangebreaks
 from rollover_calendar import get_roll_status
@@ -1666,7 +1666,7 @@ def render_live_app():
 
     if operational_gate["allowed"]:
 
-        setup = evaluate_setup(
+        setup = evaluate_setup_public(
             df,
             contract_id=active_contract.get(
                 "id"
