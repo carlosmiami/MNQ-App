@@ -891,11 +891,23 @@ def load_market_data(cycle_time=None):
 
     else:
 
-        # TEMPORARY ONE-TIME CANONICAL REBUILD
-        bars = get_mnq_5m_bars(
-            token,
+        last_saved = pd.Timestamp(
+            existing.iloc[-1][
+                "time"
+            ]
+        )
+
+        overlap_start = (
+            last_saved
+            - pd.Timedelta(
+                minutes=15
+            )
+        )
+
+        bars = get_mnq_5m_bars_since(
+            token=token,
             contract_id=contract_id,
-            limit=500,
+            start_time=overlap_start,
             end_time=cycle_time,
         )
 
