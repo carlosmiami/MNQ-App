@@ -32,6 +32,10 @@ from contract_history import (
     load_contract_history,
 )
 
+from closed_bar_utils import (
+    filter_closed_bars,
+)
+
 
 # ============================================================================
 # UI TRANSLATIONS
@@ -978,6 +982,15 @@ def load_market_data(cycle_time=None):
                 "volume",
             ]
         )
+
+    # ========================================================
+    # CLOSED-BAR PERSISTENCE BARRIER
+    # ========================================================
+
+    fresh = filter_closed_bars(
+        fresh,
+        as_of_time=cycle_time,
+    )
 
     # ========================================================
     # SAME-CONTRACT PERSISTENCE
