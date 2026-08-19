@@ -1,4 +1,4 @@
-import json
+﻿import json
 from datetime import datetime, timezone, time
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -10,12 +10,12 @@ import streamlit as st
 def _ui(en, es):
     """Display-only translation. Internal system states are unchanged."""
     language = st.session_state.get("language", "English")
-    return es if language == "Español" else en
+    return es if language == "EspaÃ±ol" else en
 
 
 def _display_status(value):
     """Translate status values for display only."""
-    if st.session_state.get("language", "English") != "Español":
+    if st.session_state.get("language", "English") != "EspaÃ±ol":
         return value
 
     mapping = {
@@ -30,7 +30,7 @@ def _display_status(value):
         "SYNCED": "SINCRONIZADO",
         "CLEAN": "LIMPIO",
         "LAGGING": "RETRASADO",
-        "OUT OF SYNC": "FUERA DE SINCRONÍA",
+        "OUT OF SYNC": "FUERA DE SINCRONÃA",
         "SCHEDULE UNKNOWN": "HORARIO DESCONOCIDO",
         "HOLIDAY UNKNOWN": "FERIADO DESCONOCIDO",
     }
@@ -212,6 +212,7 @@ def normalize_timestamp(
 
 def age_minutes(
     timestamp,
+    as_of_time=None,
 ):
 
     timestamp = normalize_timestamp(
@@ -221,8 +222,22 @@ def age_minutes(
     if timestamp is None:
         return None
 
+    if as_of_time is None:
+
+        reference_time = now_utc()
+
+    else:
+
+        reference_time = normalize_timestamp(
+            as_of_time
+        )
+
+        if reference_time is None:
+
+            reference_time = now_utc()
+
     age = (
-        now_utc()
+        reference_time
         - timestamp
     ).total_seconds() / 60.0
 
@@ -638,6 +653,7 @@ def format_bar_time(
 
 def load_local_history_status(
     contract_info,
+    as_of_time=None,
 ):
 
     empty = {
@@ -726,7 +742,8 @@ def load_local_history_status(
     )
 
     local_age = age_minutes(
-        last_bar
+        last_bar,
+        as_of_time=as_of_time,
     )
 
     integrity = (
@@ -998,6 +1015,12 @@ def classify_local_history_sync(
 def render_system_status(
     latest_bar_time=None,
     contract_info=None,
+    as_of_time=None,
+    market_fingerprint_value=None,
+    engine_fingerprint_value=None,
+    fingerprint_bars=None,
+    fingerprint_first=None,
+    fingerprint_last=None,
 ):
 
     data = load_runner_status()
@@ -1005,7 +1028,8 @@ def render_system_status(
     runner_age = age_minutes(
         data[
             "updated_at"
-        ]
+        ],
+        as_of_time=as_of_time,
     )
 
     runner_health = (
@@ -1018,11 +1042,14 @@ def render_system_status(
     )
 
     market_state = (
-        get_cme_market_state()
+        get_cme_market_state(
+            as_of_time=as_of_time
+        )
     )
 
     market_age = age_minutes(
-        latest_bar_time
+        latest_bar_time,
+        as_of_time=as_of_time,
     )
 
     market_data_status = (
@@ -1069,7 +1096,8 @@ def render_system_status(
 
     local_history = (
         load_local_history_status(
-            contract_info
+            contract_info,
+            as_of_time=as_of_time,
         )
     )
 
@@ -1085,8 +1113,18 @@ def render_system_status(
         )
     )
 
+    roll_reference = normalize_timestamp(
+        as_of_time
+    )
+
     roll_status = (
-        get_roll_status()
+        get_roll_status(
+            current_date=(
+                roll_reference.date()
+                if roll_reference is not None
+                else None
+            )
+        )
     )
 
     with st.expander(
@@ -1120,7 +1158,7 @@ def render_system_status(
         )
 
         c4.metric(
-            _ui("Runner Age", "Antigüedad del runner"),
+            _ui("Runner Age", "AntigÃ¼edad del runner"),
             format_age(
                 runner_age
             ),
@@ -1200,7 +1238,7 @@ def render_system_status(
         )
 
         r2.metric(
-            _ui("Next Roll", "Próximo rollover"),
+            _ui("Next Roll", "PrÃ³ximo rollover"),
             (
                 roll_status[
                     "roll_date"
@@ -1214,7 +1252,7 @@ def render_system_status(
         )
 
         r3.metric(
-            _ui("Days to Roll", "Días para rollover"),
+            _ui("Days to Roll", "DÃ­as para rollover"),
             (
                 roll_status[
                     "days_to_roll"
@@ -1282,6 +1320,78 @@ def render_system_status(
             )
 
         # ====================================================
+        # MARKET DATA FINGERPRINT
+        # ====================================================
+
+        st.markdown(
+            _ui(
+                "**Market Data Fingerprint**",
+                "**Huella de datos de mercado**",
+            )
+        )
+
+        f1, f2, f3, f4 = st.columns(
+            [
+                2,
+                2,
+                1,
+                2.2,
+            ]
+        )
+
+        f1.metric(
+            "Market SHA",
+            (
+                market_fingerprint_value[:16]
+                if market_fingerprint_value
+                else "-"
+            ),
+        )
+
+        f2.metric(
+            "Engine SHA",
+            (
+                engine_fingerprint_value[:16]
+                if engine_fingerprint_value
+                else "-"
+            ),
+        )
+
+        f3.metric(
+            _ui("Bars", "Velas"),
+            (
+                fingerprint_bars
+                if fingerprint_bars is not None
+                else "-"
+            ),
+        )
+
+        f4.metric(
+            _ui("Range", "Rango"),
+            (
+                f"{format_bar_time(fingerprint_first)} to "
+                f"{format_bar_time(fingerprint_last)}"
+                if (
+                    fingerprint_first is not None
+                    and fingerprint_last is not None
+                )
+                else "-"
+            ),
+        )
+
+        if market_fingerprint_value:
+
+            st.caption(
+                f"Market SHA256: {market_fingerprint_value}"
+            )
+
+        if engine_fingerprint_value:
+
+            st.caption(
+                f"Engine SHA256: {engine_fingerprint_value}"
+            )
+
+        # ====================================================
         # LOCAL HISTORY
         # ====================================================
 
@@ -1322,7 +1432,7 @@ def render_system_status(
         )
 
         h3.metric(
-            _ui("Local Last", "Última vela local"),
+            _ui("Local Last", "Ãšltima vela local"),
             format_bar_time(
                 local_history[
                     "last_bar"
@@ -1331,7 +1441,7 @@ def render_system_status(
         )
 
         h4.metric(
-            _ui("Local Age", "Antigüedad local"),
+            _ui("Local Age", "AntigÃ¼edad local"),
             format_age(
                 local_history[
                     "age_minutes"
@@ -1340,7 +1450,7 @@ def render_system_status(
         )
 
         h5.metric(
-            _ui("Local Sync", "Sincronización local"),
+            _ui("Local Sync", "SincronizaciÃ³n local"),
             _display_status(local_sync["state"]),
         )
 

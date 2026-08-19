@@ -2,6 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import hashlib
 import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
@@ -704,12 +705,125 @@ def add_indicators(df):
     return data
 
 
+def market_fingerprint(
+    df,
+    bars=500,
+):
+    """
+    Deterministic fingerprint of recent market data.
+
+    Same timestamps + OHLCV -> same SHA256 on Local and Cloud.
+    """
+
+    if df is None or df.empty:
+        return "EMPTY"
+
+    data = (
+        df[
+            [
+                "time",
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume",
+            ]
+        ]
+        .tail(bars)
+        .copy()
+    )
+
+    data["time"] = (
+        pd.to_datetime(
+            data["time"],
+            utc=True,
+        )
+        .dt.strftime(
+            "%Y-%m-%dT%H:%M:%S.%fZ"
+        )
+    )
+
+    payload = (
+        data.to_csv(
+            index=False,
+            float_format="%.10f",
+            lineterminator="\n",
+        )
+        .encode("utf-8")
+    )
+
+    return hashlib.sha256(
+        payload
+    ).hexdigest()
+
+
+def engine_fingerprint():
+    """
+    Deterministic fingerprint of the source files that can
+    affect C1-C5 lifecycle decisions and provider recovery.
+
+    Line endings are normalized so Windows and Linux checkouts
+    of the same source produce the same SHA256.
+    """
+
+    source_files = [
+        "setup_engine.py",
+        "levels.py",
+        "analysis_provider.py",
+        "setup_state.py",
+        "setup_history.py",
+        "session_utils.py",
+        "closed_bar_utils.py",
+        "ohlcv_integrity.py",
+    ]
+
+    root = Path(__file__).resolve().parent
+
+    parts = []
+
+    for filename in source_files:
+
+        path = root / filename
+
+        if not path.exists():
+
+            parts.append(
+                f"FILE:{filename}\nMISSING\n"
+            )
+
+            continue
+
+        source = path.read_text(
+            encoding="utf-8"
+        )
+
+        source = (
+            source
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
+        )
+
+        parts.append(
+            f"FILE:{filename}\n"
+            f"{source}\n"
+        )
+
+    payload = (
+        "".join(parts)
+        .encode("utf-8")
+    )
+
+    return hashlib.sha256(
+        payload
+    ).hexdigest()
+
+
 # ============================================================
 # MARKET DATA
 # ============================================================
 
 @st.cache_data(ttl=20)
-def load_market_data():
+def load_market_data(cycle_time=None):
 
     token = get_token()
 
@@ -748,13 +862,27 @@ def load_market_data():
             contract_id=contract_id,
             days=10,
             limit=1500,
+            end_time=cycle_time,
         )
 
     # ========================================================
     # INCREMENTAL
     #
     # Local history exists:
-    # request ONLY bars strictly after the latest saved bar.
+    #
+    # Re-fetch a small closed-bar overlap instead of trusting
+    # the latest locally stored OHLCV forever.
+    #
+    # get_mnq_5m_bars_since() starts strictly AFTER start_time,
+    # so subtracting 15 minutes makes the request begin at
+    # last_saved - 10 minutes. That re-fetches the latest
+    # three stored 5-minute candles:
+    #
+    #     last_saved - 10m
+    #     last_saved - 5m
+    #     last_saved
+    #
+    # Fresh API bars win during normal timestamp deduplication.
     # ========================================================
 
     else:
@@ -765,10 +893,18 @@ def load_market_data():
             ]
         )
 
+        overlap_start = (
+            last_saved
+            - pd.Timedelta(
+                minutes=15
+            )
+        )
+
         bars = get_mnq_5m_bars_since(
             token=token,
             contract_id=contract_id,
-            start_time=last_saved,
+            start_time=overlap_start,
+            end_time=cycle_time,
         )
 
     # ========================================================
@@ -1567,6 +1703,14 @@ def fmt(
 
 @st.fragment(run_every="20s")
 def render_live_app():
+    # One authoritative UTC timestamp for this entire refresh.
+    #
+    # Market schedule, closed-bar filtering, setup evaluation
+    # and C1-C5 visual progress must all observe the same instant.
+    cycle_time = pd.Timestamp.now(
+        tz="UTC"
+    )
+
     # Resolve the active UI language before any translated text is rendered.
     language = st.session_state.get(
         "language_selector_header",
@@ -1583,7 +1727,9 @@ def render_live_app():
 
     try:
 
-        df, active_contract = load_market_data()
+        df, active_contract = load_market_data(
+            cycle_time=cycle_time
+        )
 
         history_status = classify_mnq_history(
             len(df)
@@ -1591,7 +1737,8 @@ def render_live_app():
 
         local_history_status = (
             load_local_history_status(
-                active_contract
+                active_contract,
+                as_of_time=cycle_time,
             )
         )
 
@@ -1608,11 +1755,16 @@ def render_live_app():
         )
 
         current_market_state = (
-            get_cme_market_state()
+            get_cme_market_state(
+                as_of_time=cycle_time
+            )
         )
 
         roll_status = (
-            get_roll_status()
+            get_roll_status(
+                current_date=
+                    cycle_time.date()
+            )
         )
 
         operational_gate = (
@@ -1674,9 +1826,7 @@ def render_live_app():
             contract_name=active_contract.get(
                 "name"
             ),
-            as_of_time=pd.Timestamp.now(
-                tz="UTC"
-            ),
+            as_of_time=cycle_time,
         )
 
     else:
@@ -2225,7 +2375,7 @@ def render_live_app():
         )
 
     stage = setup["stage"]
-    c1_c5_ui_now = pd.Timestamp.now(tz="UTC")
+    c1_c5_ui_now = cycle_time
 
     with rail_col:
         st.markdown(
@@ -2780,11 +2930,40 @@ def render_live_app():
     render_recent_setups(
         limit=15,
     )
+    fingerprint_df = (
+        df
+        .tail(500)
+        .copy()
+    )
+
     render_system_status(
         latest_bar_time=latest[
             "time"
         ],
         contract_info=active_contract,
+        as_of_time=cycle_time,
+        market_fingerprint_value=
+            market_fingerprint(
+                df
+            ),
+        engine_fingerprint_value=
+            engine_fingerprint(),
+        fingerprint_bars=
+            len(fingerprint_df),
+        fingerprint_first=(
+            fingerprint_df.iloc[0][
+                "time"
+            ]
+            if not fingerprint_df.empty
+            else None
+        ),
+        fingerprint_last=(
+            fingerprint_df.iloc[-1][
+                "time"
+            ]
+            if not fingerprint_df.empty
+            else None
+        ),
     )
 
 

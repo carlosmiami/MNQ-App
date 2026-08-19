@@ -4,6 +4,8 @@ import tempfile
 
 from pathlib import Path
 from datetime import datetime, timezone
+from contextlib import contextmanager
+from contextvars import ContextVar
 
 from state_lock import (
     FileLock,
@@ -15,6 +17,48 @@ STATE_DIR = Path("state")
 STATE_FILE = STATE_DIR / "active_setup.json"
 STATE_LOCK_FILE = STATE_DIR / "active_setup.lock"
 
+_STATE_DIR_OVERRIDE = ContextVar(
+    "mnq_setup_state_dir",
+    default=None,
+)
+
+
+def _state_paths():
+    override = _STATE_DIR_OVERRIDE.get()
+
+    state_dir = (
+        Path(override)
+        if override is not None
+        else STATE_DIR
+    )
+
+    return (
+        state_dir,
+        state_dir / "active_setup.json",
+        state_dir / "active_setup.lock",
+    )
+
+
+@contextmanager
+def isolated_state_dir(root):
+    """
+    Temporarily redirect setup state for this execution context only.
+
+    ContextVar prevents one Streamlit session/thread from changing
+    another session's state paths.
+    """
+
+    token = _STATE_DIR_OVERRIDE.set(
+        Path(root)
+    )
+
+    try:
+        yield
+    finally:
+        _STATE_DIR_OVERRIDE.reset(
+            token
+        )
+
 
 def _now():
 
@@ -25,7 +69,9 @@ def _now():
 
 def _ensure_state_dir():
 
-    STATE_DIR.mkdir(
+    state_dir, _, _ = _state_paths()
+
+    state_dir.mkdir(
         parents=True,
         exist_ok=True,
     )
@@ -77,13 +123,15 @@ def load_setup_state():
 
     _ensure_state_dir()
 
-    if not STATE_FILE.exists():
+    _, state_file, _ = _state_paths()
+
+    if not state_file.exists():
 
         return _default_state()
 
     try:
 
-        with STATE_FILE.open(
+        with state_file.open(
             "r",
             encoding="utf-8",
         ) as f:
@@ -113,6 +161,10 @@ def save_setup_state(
 
     _ensure_state_dir()
 
+    state_dir, state_file, state_lock_file = (
+        _state_paths()
+    )
+
     state = dict(
         state
     )
@@ -124,7 +176,7 @@ def save_setup_state(
     temp_path = None
 
     with FileLock(
-        STATE_LOCK_FILE
+        state_lock_file
     ):
 
         try:
@@ -132,7 +184,7 @@ def save_setup_state(
             with tempfile.NamedTemporaryFile(
                 mode="w",
                 encoding="utf-8",
-                dir=STATE_DIR,
+                dir=state_dir,
                 prefix="active_setup_",
                 suffix=".tmp",
                 delete=False,
@@ -157,7 +209,7 @@ def save_setup_state(
 
             replace_with_retry(
                 temp_path,
-                STATE_FILE,
+                state_file,
             )
 
             temp_path = None

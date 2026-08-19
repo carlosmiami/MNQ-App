@@ -5,6 +5,8 @@ import tempfile
 
 import pandas as pd
 
+from state_lock import FileLock
+
 from ohlcv_integrity import (
     validate_ohlcv_frame,
 )
@@ -62,6 +64,25 @@ def get_contract_history_file(
     return (
         DATA_DIR
         / f"{safe_name(contract_name)}_5m.csv"
+    )
+
+
+def get_contract_history_lock_file(
+    contract_name,
+):
+    """
+    One transaction lock per contract history.
+
+    The lock protects the complete:
+        read -> merge -> validate -> atomic write
+
+    sequence so concurrent Streamlit/process writers cannot
+    overwrite each other's newly received bars.
+    """
+
+    return (
+        DATA_DIR
+        / f"{safe_name(contract_name)}_5m.lock"
     )
 
 
@@ -387,49 +408,67 @@ def persist_contract_history(
         )
 
 
-    existing = load_contract_history(
-        contract_id=contract_id,
-        contract_name=contract_name,
+    history_lock_file = (
+        get_contract_history_lock_file(
+            contract_name
+        )
     )
 
-    merged = pd.concat(
-        [
-            existing,
-            fresh,
-        ],
-        ignore_index=True,
-    )
+    # ========================================================
+    # TRANSACTION LOCK
+    #
+    # Protect the ENTIRE read -> merge -> validate -> write
+    # sequence. Atomic os.replace() protects the file itself,
+    # but without this transaction lock two concurrent writers
+    # could both read the same old history and one could later
+    # overwrite bars added by the other.
+    # ========================================================
 
-    merged = normalize_history_frame(
-        merged
-    )
-
-    merged_integrity = validate_ohlcv_frame(
-        merged
-    )
-
-
-    if (
-        merged_integrity[
-            "status"
-        ]
-        != "OK"
+    with FileLock(
+        history_lock_file
     ):
 
-        raise RuntimeError(
-            "OHLCV PERSISTENCE BLOCKED: "
-            "merged contract history is invalid. "
-            f"reason={merged_integrity.get('reason')}; "
-            f"invalid_bars={merged_integrity.get('invalid_count')}; "
-            f"indices={merged_integrity.get('invalid_indices')}."
+        existing = load_contract_history(
+            contract_id=contract_id,
+            contract_name=contract_name,
         )
 
+        merged = pd.concat(
+            [
+                existing,
+                fresh,
+            ],
+            ignore_index=True,
+        )
 
-    path = save_contract_history(
-        contract_id=contract_id,
-        contract_name=contract_name,
-        df=merged,
-    )
+        merged = normalize_history_frame(
+            merged
+        )
+
+        merged_integrity = validate_ohlcv_frame(
+            merged
+        )
+
+        if (
+            merged_integrity[
+                "status"
+            ]
+            != "OK"
+        ):
+
+            raise RuntimeError(
+                "OHLCV PERSISTENCE BLOCKED: "
+                "merged contract history is invalid. "
+                f"reason={merged_integrity.get('reason')}; "
+                f"invalid_bars={merged_integrity.get('invalid_count')}; "
+                f"indices={merged_integrity.get('invalid_indices')}."
+            )
+
+        path = save_contract_history(
+            contract_id=contract_id,
+            contract_name=contract_name,
+            df=merged,
+        )
 
     return (
         merged,

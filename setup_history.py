@@ -4,6 +4,8 @@ import tempfile
 import time
 
 from pathlib import Path
+from contextlib import contextmanager
+from contextvars import ContextVar
 
 from state_lock import (
     FileLock,
@@ -22,6 +24,46 @@ HISTORY_LOCK_FILE = (
     STATE_DIR
     / "setup_history.lock"
 )
+
+
+_HISTORY_DIR_OVERRIDE = ContextVar(
+    "mnq_setup_history_dir",
+    default=None,
+)
+
+
+def _history_paths():
+    override = _HISTORY_DIR_OVERRIDE.get()
+
+    state_dir = (
+        Path(override)
+        if override is not None
+        else STATE_DIR
+    )
+
+    return (
+        state_dir,
+        state_dir / "setup_history.csv",
+        state_dir / "setup_history.lock",
+    )
+
+
+@contextmanager
+def isolated_history_dir(root):
+    """
+    Temporarily redirect setup history for this execution context only.
+    """
+
+    token = _HISTORY_DIR_OVERRIDE.set(
+        Path(root)
+    )
+
+    try:
+        yield
+    finally:
+        _HISTORY_DIR_OVERRIDE.reset(
+            token
+        )
 
 
 COLUMNS = [
@@ -45,7 +87,9 @@ COLUMNS = [
 
 def _ensure_state_dir():
 
-    STATE_DIR.mkdir(
+    state_dir, _, _ = _history_paths()
+
+    state_dir.mkdir(
         parents=True,
         exist_ok=True,
     )
@@ -58,7 +102,9 @@ def _read_rows(
 
     _ensure_state_dir()
 
-    if not HISTORY_FILE.exists():
+    _, history_file, _ = _history_paths()
+
+    if not history_file.exists():
 
         return []
 
@@ -70,7 +116,7 @@ def _read_rows(
 
         try:
 
-            with HISTORY_FILE.open(
+            with history_file.open(
                 "r",
                 newline="",
                 encoding="utf-8",
@@ -104,7 +150,7 @@ def _read_rows(
             # another process may be completing os.replace().
             if attempt == attempts - 1:
 
-                if HISTORY_FILE.exists():
+                if history_file.exists():
 
                     continue
 
@@ -139,6 +185,10 @@ def _write_rows(
 
     _ensure_state_dir()
 
+    state_dir, history_file, _ = (
+        _history_paths()
+    )
+
     temp_path = None
 
     try:
@@ -147,7 +197,7 @@ def _write_rows(
             mode="w",
             newline="",
             encoding="utf-8",
-            dir=STATE_DIR,
+            dir=state_dir,
             prefix="setup_history_",
             suffix=".tmp",
             delete=False,
@@ -189,7 +239,7 @@ def _write_rows(
 
         replace_with_retry(
             temp_path,
-            HISTORY_FILE,
+            history_file,
         )
 
         temp_path = None
@@ -214,7 +264,9 @@ def _ensure_schema():
 
     _ensure_state_dir()
 
-    if not HISTORY_FILE.exists():
+    _, history_file, _ = _history_paths()
+
+    if not history_file.exists():
 
         _write_rows(
             []
@@ -226,7 +278,7 @@ def _ensure_schema():
 
     try:
 
-        with HISTORY_FILE.open(
+        with history_file.open(
             "r",
             newline="",
             encoding="utf-8",
@@ -451,8 +503,12 @@ def archive_terminal_setup(
     # Lock covers schema check, dedupe check and final write.
     # ========================================================
 
+    _, _, history_lock_file = (
+        _history_paths()
+    )
+
     with FileLock(
-        HISTORY_LOCK_FILE
+        history_lock_file
     ):
 
         _ensure_schema()

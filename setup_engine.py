@@ -547,6 +547,16 @@ def _manage_c2(
         * C3_ATR_FRACTION
     )
 
+    zone_low = (
+        level
+        - tolerance
+    )
+
+    zone_high = (
+        level
+        + tolerance
+    )
+
     all_later = data[
         data[
             "time"
@@ -561,51 +571,77 @@ def _manage_c2(
         )
     )
 
+    # --------------------------------------------------------
+    # Find the C2 close.
+    #
+    # C2 itself already establishes direction:
+    #
+    # LONG  -> C2 close > level
+    # SHORT -> C2 close < level
+    #
+    # Every C3 candidate must therefore approach the retest
+    # zone from the correct breakout side.
+    # --------------------------------------------------------
+
+    c2_rows = data[
+        data[
+            "time"
+        ]
+        == c2_time
+    ]
+
+    if c2_rows.empty:
+
+        return state
+
+    previous_close = float(
+        c2_rows.iloc[-1][
+            "close"
+        ]
+    )
+
     for _, candle in later.iterrows():
+
+        candle_low = float(
+            candle[
+                "low"
+            ]
+        )
+
+        candle_high = float(
+            candle[
+                "high"
+            ]
+        )
+
+        intersects_zone = (
+            candle_low
+            <= zone_high
+
+            and
+
+            candle_high
+            >= zone_low
+        )
 
         if side == "LONG":
 
-            touched = (
-                float(
-                    candle[
-                        "low"
-                    ]
-                )
-                <= level
-                + tolerance
-
-                and
-
-                float(
-                    candle[
-                        "high"
-                    ]
-                )
-                >= level
-                - tolerance
+            correct_approach = (
+                previous_close
+                > level
             )
 
         else:
 
-            touched = (
-                float(
-                    candle[
-                        "high"
-                    ]
-                )
-                >= level
-                - tolerance
-
-                and
-
-                float(
-                    candle[
-                        "low"
-                    ]
-                )
-                <= level
-                + tolerance
+            correct_approach = (
+                previous_close
+                < level
             )
+
+        touched = (
+            correct_approach
+            and intersects_zone
+        )
 
         if touched:
 
@@ -613,6 +649,12 @@ def _manage_c2(
                 state,
                 candle,
             )
+
+        previous_close = float(
+            candle[
+                "close"
+            ]
+        )
 
     if (
         len(
